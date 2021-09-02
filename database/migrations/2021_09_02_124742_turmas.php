@@ -15,7 +15,7 @@ class Turmas extends Migration
     {
         Schema::create('turmas', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('nome', 40);
+            $table->string('nome', 40)->unique();
             $table->integer('id_escola')->unsigned();
             $table->foreign('id_escola')->references('id')->on('escolas')->onDelete('cascade');
         });

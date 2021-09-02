@@ -15,7 +15,7 @@ class Escolas extends Migration
     {
         Schema::create('escolas', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('nome', 40);
+            $table->string('nome', 40)->unique();
             $table->string('endereco', 100);
             $table->string('telefone', 16);
         });
