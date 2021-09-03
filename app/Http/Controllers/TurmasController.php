@@ -42,18 +42,21 @@ class TurmasController extends Controller
         switch($exceptionCode) {
             case 1452:
                 $mensagemErro = 'Escola não registrada';
+                $code = 404;
                 break;
 
             case 1062:
                 $mensagemErro = 'Turma ja cadastrada';
+                $code = 409;
                 break;
 
             default:
                 $mensagemErro = 'Um erro inesperado aconteceu, verifique os dados enviados ou tente novamente mais tarde.';
+                $code = 400;
 
         }
 
-        return response()->json(['error' => $mensagemErro], 404);
+        return response()->json(['error' => $mensagemErro], $code);
     }
 
     }
@@ -92,28 +95,32 @@ class TurmasController extends Controller
             $turma->id_escola = $request->id_escola;
             $turma->save();
 
-            return response()->json(['success' => 'Dados da turma atualizados com sucesso!']);
+            return response()->json(['success' => 'Dados da turma atualizados com sucesso!'], 201);
         } catch (Exception $exception) {
             $exceptionCode = $exception->errorInfo[1] ?? $exception->getCode();
 
             switch($exceptionCode) {
                 case 1452:
                     $mensagemErro = 'Escola não registrada';
+                    $code = 404;
                     break;
 
                 case 1062:
                     $mensagemErro = 'Turma ja cadastrada';
+                    $code = 409;
                     break;
 
                 case 404:
                     $mensagemErro = $exception->getMessage();
+                    $code = 404;
                     break;
 
                 default:
                     $mensagemErro = 'Um erro inesperado aconteceu, verifique os dados enviados ou tente novamente mais tarde.';
+                    $code = 400;
 
             }
-            return response()->json(['error' => $mensagemErro], 401);
+            return response()->json(['error' => $mensagemErro], $code);
         }
     }
 

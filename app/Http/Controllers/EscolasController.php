@@ -35,17 +35,21 @@ class EscolasController extends Controller
 
         Escolas::create($request->all());
 
-        return response()->json(['success' => 'Escola criada com sucesso!']);
+        return response()->json(['success' => 'Escola criada com sucesso!'], 201);
        } catch (Exception $exception) {
-        switch($exception->errorInfo[1]) {
+        $exceptionCode = $exception->errorInfo[1] ?? $exception->getCode();
+
+        switch($exceptionCode) {
             case 1062:
-                $mensagemErro = 'Escola ja cadastrada';
+                $mensagemErro = 'Escola já cadastrada';
+                $code = 409;
                 break;
 
             default:
-                $mensagemErro = 'Um erro inesperado aconteceu, por favor tente novamente mais tarde';
+                $mensagemErro = 'Um erro inesperado aconteceu, verifique os dados enviados ou tente novamente mais tarde.';
+                $code = 400;
         }
-        return response()->json(['error' => $mensagemErro], 401);
+        return response()->json(['error' => $mensagemErro], $code);
        }
     }
 
@@ -78,7 +82,7 @@ class EscolasController extends Controller
 
             $escola = Escolas::find($id);
 
-            if (is_null($escola)) throw new Exception('Escola nao encontrada');
+            if (is_null($escola)) throw new Exception('Escola não encontrada', 404);
 
             $escola->nome     = $request->nome;
             $escola->endereco = $request->endereco;
@@ -88,15 +92,24 @@ class EscolasController extends Controller
             return response()->json(['success' => 'Escola atualizada com sucesso!']);
 
         } catch (Exception $exception) {
-            switch($exception->errorInfo[1]) {
+            $exceptionCode = $exception->errorInfo[1] ?? $exception->getCode();
+
+            switch($exceptionCode) {
                 case 1062:
                     $mensagemErro = 'Escola ja cadastrada';
+                    $code = 409;
+                    break;
+
+                case 404:
+                    $mensagemErro = $exception->getMessage();
+                    $code = 404;
                     break;
 
                 default:
-                    $mensagemErro = 'Um erro inesperado aconteceu, por favor tente novamente mais tarde';
+                    $mensagemErro = 'Um erro inesperado aconteceu, verifique os dados enviados ou tente novamente mais tarde.';
+                    $code = 400;
             }
-            return response()->json(['error' => $mensagemErro], 401);
+            return response()->json(['error' => $mensagemErro], $code);
         }
     }
 

@@ -42,13 +42,15 @@ class EstudantesController extends Controller
         switch($exceptionCode) {
             case 1452:
                 $mensagemErro = 'Turma não registrada';
+                $code = 404;
                 break;
 
             default:
                 $mensagemErro = 'Um erro inesperado aconteceu, verifique os dados enviados ou tente novamente mais tarde.';
+                $code = 400;
         }
 
-        return response()->json(['error' => $mensagemErro], 404);
+        return response()->json(['error' => $mensagemErro], $code);
       }
     }
 
@@ -88,23 +90,26 @@ class EstudantesController extends Controller
             $estudante->id_turma  = $request->id_turma;
             $estudante->save();
 
-            return response()->json(['success' => 'Dados do estudante atualizados com sucesso!']);
+            return response()->json(['success' => 'Dados do estudante atualizados com sucesso!'], 201);
         } catch (Exception $exception) {
-
+            
             $exceptionCode = $exception->errorInfo[1] ?? $exception->getCode();
             switch($exceptionCode) {
                 case 1452:
                     $mensagemErro = 'Turma não encontrada';
+                    $code = 404;
                     break;
 
                 case 404:
                     $mensagemErro = $exception->getMessage();
+                    $code = 404;
                     break;
 
                 default:
                     $mensagemErro = 'Um erro inesperado aconteceu, verifique os dados enviados ou tente novamente mais tarde.';
+                    $code = 400;
             }
-            return response()->json(['error' => $mensagemErro], 401);
+            return response()->json(['error' => $mensagemErro], $code);
         }
     }
 
