@@ -33,7 +33,11 @@ class EscolasController extends Controller
             'telefone' => 'required'
         ]);
 
-        Escolas::create($request->all());
+        $escola = new Escolas;
+        $escola->nome     = $request->nome;
+        $escola->endereco = $request->endereco;
+        $escola->telefone = $this->formatTelephone($request->telefone);
+        $escola->save();
 
         return response()->json(['success' => 'Escola criada com sucesso!'], 201);
        } catch (Exception $exception) {
@@ -86,7 +90,8 @@ class EscolasController extends Controller
 
             $escola->nome     = $request->nome;
             $escola->endereco = $request->endereco;
-            $escola->telefone = $request->telefone;
+            $escola->telefone = $this->formatTelephone($request->telefone);
+
             $escola->save();
 
             return response()->json(['success' => 'Escola atualizada com sucesso!']);
@@ -111,6 +116,18 @@ class EscolasController extends Controller
             }
             return response()->json(['error' => $mensagemErro], $code);
         }
+    }
+
+    /**
+     * Adiciona masca de telefone
+     *
+     * @return String Telefone com mascara se for elegivel a regex ou numero default passado
+     */
+    private function formatTelephone($telefone) {
+        $telefoneFormatado = preg_replace('/^(\(?\d{2}\)?)\s?(\d{4,5})\-?(\d{4})$/', "$1 $2-$3", $telefone);
+        $telefoneFormatado = preg_replace('/[^0-9]/', '', $telefone);
+
+        return preg_replace('/^(\d{2})\s?(\d{4,5})\-?(\d{4})$/', "($1) $2-$3", $telefoneFormatado);
     }
 
     /**
