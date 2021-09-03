@@ -36,7 +36,10 @@ class TurmasController extends Controller
 
         return response()->json(['success' => 'Turma registrada com sucesso!']);
        } catch (Exception $exception) {
-        switch($exception->errorInfo[1]) {
+
+        $exceptionCode = $exception->errorInfo[1] ?? $exception->getCode();
+
+        switch($exceptionCode) {
             case 1452:
                 $mensagemErro = 'Escola não registrada';
                 break;
@@ -46,7 +49,8 @@ class TurmasController extends Controller
                 break;
 
             default:
-                $mensagemErro = 'Um erro inesperado aconteceu, por favor tente novamente mais tarde';
+                $mensagemErro = 'Um erro inesperado aconteceu, verifique os dados enviados ou tente novamente mais tarde.';
+
         }
 
         return response()->json(['error' => $mensagemErro], 404);
@@ -106,7 +110,8 @@ class TurmasController extends Controller
                     break;
 
                 default:
-                    $mensagemErro = 'Um erro inesperado aconteceu, por favor tente novamente mais tarde';
+                    $mensagemErro = 'Um erro inesperado aconteceu, verifique os dados enviados ou tente novamente mais tarde.';
+
             }
             return response()->json(['error' => $mensagemErro], 401);
         }

@@ -30,17 +30,26 @@ class EstudantesController extends Controller
         $this->validate($request, [
             'nome'     => 'required',
             'idade'    => 'required',
-            'id_turma' => 'required'
+            'id_turma' => 'required',
         ]);
 
-        $saveInTable = Estudantes::create($request->all());
-
-        if (!$saveInTable) throw new Exception('Falha ao registrar o estudante na base de dados');
+        Estudantes::create($request->all());
 
         return response()->json(['success' => 'Estudante registrado com sucesso!']);
        } catch (Exception $exception) {
-        return response()->json(['error' => $exception->getMessage()], 401);
-       }
+        $exceptionCode = $exception->errorInfo[1] ?? $exception->getCode();
+
+        switch($exceptionCode) {
+            case 1452:
+                $mensagemErro = 'Turma não registrada';
+                break;
+
+            default:
+                $mensagemErro = 'Um erro inesperado aconteceu, verifique os dados enviados ou tente novamente mais tarde.';
+        }
+
+        return response()->json(['error' => $mensagemErro], 404);
+      }
     }
 
     /**
@@ -67,21 +76,35 @@ class EstudantesController extends Controller
             $this->validate($request, [
                 'nome'     => 'required',
                 'idade'    => 'required',
-                'id_turma' => 'required'
+                'id_turma' => 'required',
             ]);
 
             $estudante = Estudantes::find($id);
 
-            if (is_null($estudante)) throw new Exception('Estudante não encontrado(a)');
+            if (is_null($estudante)) throw new Exception('Estudante não encontrado(a)', 404);
 
-            $estudante->nome     = $request->nome;
-            $estudante->idade    = $request->idade;
-            $estudante->id_turma = $request->id_turma;
+            $estudante->nome      = $request->nome;
+            $estudante->idade     = $request->idade;
+            $estudante->id_turma  = $request->id_turma;
             $estudante->save();
 
             return response()->json(['success' => 'Dados do estudante atualizados com sucesso!']);
         } catch (Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 404);
+
+            $exceptionCode = $exception->errorInfo[1] ?? $exception->getCode();
+            switch($exceptionCode) {
+                case 1452:
+                    $mensagemErro = 'Turma não encontrada';
+                    break;
+
+                case 404:
+                    $mensagemErro = $exception->getMessage();
+                    break;
+
+                default:
+                    $mensagemErro = 'Um erro inesperado aconteceu, verifique os dados enviados ou tente novamente mais tarde.';
+            }
+            return response()->json(['error' => $mensagemErro], 401);
         }
     }
 
@@ -95,8 +118,8 @@ class EstudantesController extends Controller
     {
         $estudante = Estudantes::destroy($id);
 
-        if (!$estudante) return response()->json(['error' => 'Estudante não registrado(a).'], 404);
+        if (!$estudante) return response()->json(['error' => 'Estudante não encontrado(a).'], 404);
 
-        return response()->json(['success' => 'Dados do estudante removidos com sucesso!!']);
+        return response()->json(['success' => 'Estudante removido(a) com sucesso!!']);
     }
 }
