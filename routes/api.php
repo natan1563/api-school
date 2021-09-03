@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\ControllerUser;
 use App\Http\Controllers\EscolasController;
 use App\Http\Controllers\EstudantesController;
 use App\Http\Controllers\TurmasController;
@@ -18,7 +19,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('login', [AuthController::class, 'login']);
+Route::post('login',    [AuthController::class, 'login']);
+Route::post('register', [ControllerUser::class, 'store']);
 
 Route::group(['middleware' => ['apiJwt']], function() {
     Route::prefix('escolas')->group(function () {
